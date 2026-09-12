@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLIP CITY — GTA 6 Content Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #090C1F;
+    --panel: #12162E;
+    --panel-2: #171C3A;
+    --line: #262C52;
+    --text: #E9EAF6;
+    --muted: #8489AC;
+    --pink: #FF2E7E;
+    --pink-dim: #7A1642;
+    --cyan: #26E5D6;
+    --cyan-dim: #10534E;
+    --yellow: #FFC93C;
+    --red: #FF5C5C;
+    --radius: 3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1200px 700px at 85% -10%, rgba(255,46,126,0.10), transparent 60%),
+      radial-gradient(1000px 600px at -5% 110%, rgba(38,229,214,0.08), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+  }
+  .app{display:flex; min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{
+    width:220px; flex-shrink:0;
+    background:#070A1A;
+    border-right:1px solid var(--line);
+    padding:24px 0;
+    display:flex; flex-direction:column;
+    position:sticky; top:0; height:100vh;
+  }
+  .brand{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:30px;
+    letter-spacing:2px;
+    padding:0 22px 20px 22px;
+    line-height:0.95;
+    border-bottom:1px solid var(--line);
+    margin-bottom:14px;
+  }
+  .brand span{color:var(--pink); text-shadow:0 0 18px rgba(255,46,126,0.55);}
+  .nav{display:flex; flex-direction:column; gap:2px; padding:0 10px;}
+  .nav-item{
+    display:flex; align-items:center; gap:10px;
+    padding:11px 12px;
+    color:var(--muted);
+    border-left:2px solid transparent;
+    border-radius:2px;
+    cursor:pointer;
+    font-size:13.5px;
+    font-weight:500;
+    letter-spacing:0.3px;
+    transition:color .15s, background .15s, border-color .15s;
+  }
+  .nav-item:hover{color:var(--text); background:rgba(255,255,255,0.03);}
+  .nav-item.active{
+    color:var(--text);
+    background:rgba(255,46,126,0.08);
+    border-left:2px solid var(--pink);
+  }
+  .nav-count{
+    margin-left:auto;
+    font-size:11px;
+    color:var(--muted);
+    background:var(--panel-2);
+    padding:1px 7px;
+    border-radius:20px;
+  }
+  .sidebar-foot{
+    margin-top:auto; padding:14px 22px 0 22px;
+    font-size:11px; color:var(--muted); line-height:1.5;
+    border-top:1px solid var(--line);
+  }
+
+  /* MAIN */
+  .main{flex:1; min-width:0; display:flex; flex-direction:column;}
+  .topbar{
+    padding:22px 34px 18px 34px;
+    border-bottom:1px solid var(--line);
+    display:flex; align-items:baseline; justify-content:space-between;
+    gap:20px;
+  }
+  .topbar h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:28px; letter-spacing:1px; margin:0;
+  }
+  .topbar p{margin:4px 0 0 0; color:var(--muted); font-size:13.5px; max-width:520px;}
+  .content{padding:28px 34px 60px 34px; flex:1;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:20px 22px;
+    margin-bottom:22px;
+  }
+  .panel h2{
+    font-size:14.5px; margin:0 0 4px 0; font-weight:700;
+  }
+  .panel .sub{color:var(--muted); font-size:12.5px; margin:0 0 16px 0;}
+
+  /* forms */
+  .form-row{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;}
+  input[type=text], input[type=url], input[type=date], select, textarea{
+    background:#0C1026;
+    border:1px solid var(--line);
+    color:var(--text);
+    padding:9px 11px;
+    border-radius:2px;
+    font-family:inherit;
+    font-size:13px;
+    outline:none;
+  }
+  input:focus, select:focus, textarea:focus{border-color:var(--cyan);}
+  input[type=text], input[type=url]{flex:1; min-width:160px;}
+  textarea{width:100%; resize:vertical; min-height:60px;}
+  .btn{
+    background:var(--pink);
+    color:#0A0A14;
+    border:none;
+    padding:9px 16px;
+    border-radius:2px;
+    font-weight:700;
+    font-size:13px;
+    cursor:pointer;
+    letter-spacing:0.2px;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn.secondary{
+    background:transparent; color:var(--cyan); border:1px solid var(--cyan-dim);
+  }
+  .btn.ghost{
+    background:transparent; color:var(--muted); border:1px solid var(--line);
+  }
+  .btn.danger{background:transparent; color:var(--red); border:1px solid #4A1E1E; padding:5px 10px; font-size:12px;}
+  .btn:disabled{opacity:0.4; cursor:not-allowed;}
+
+  /* tables */
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{
+    text-align:left; color:var(--muted); font-weight:600; font-size:11.5px;
+    letter-spacing:0.4px; padding:8px 10px; border-bottom:1px solid var(--line);
+  }
+  td{padding:10px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .empty{color:var(--muted); font-size:13px; padding:20px 0; text-align:center;}
+
+  .badge{
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 9px; border-radius:20px; font-size:11.5px; font-weight:600;
+  }
+  .badge.ok{background:rgba(38,229,214,0.12); color:var(--cyan);}
+  .badge.warn{background:rgba(255,201,60,0.14); color:var(--yellow);}
+  .badge.no{background:rgba(255,92,92,0.12); color:var(--red);}
+  .dot{width:6px; height:6px; border-radius:50%; background:currentColor;}
+
+  a.link{color:var(--cyan); text-decoration:none; font-size:12.5px;}
+  a.link:hover{text-decoration:underline;}
+
+  /* kanban */
+  .board{display:grid; grid-template-columns:repeat(5,1fr); gap:14px;}
+  .col{background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); min-height:200px; display:flex; flex-direction:column;}
+  .col-head{
+    padding:12px 14px; border-bottom:1px solid var(--line);
+    font-size:12px; font-weight:700; letter-spacing:0.4px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .col-body{padding:10px; display:flex; flex-direction:column; gap:8px; flex:1; min-height:60px;}
+  .col-body.dragover{background:rgba(38,229,214,0.05); outline:1px dashed var(--cyan-dim);}
+  .card{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:2px;
+    padding:10px 11px; cursor:grab; font-size:12.5px;
+  }
+  .card:active{cursor:grabbing;}
+  .card .ct{font-weight:600; margin-bottom:4px;}
+  .card .cm{color:var(--muted); font-size:11px;}
+  .card .cc{margin-top:6px; display:flex; gap:6px; flex-wrap:wrap;}
+  .chip{background:#0C1026; border:1px solid var(--line); color:var(--muted); font-size:10.5px; padding:2px 7px; border-radius:20px;}
+
+  .tags{display:flex; flex-wrap:wrap; gap:8px;}
+  .tag{
+    display:flex; align-items:center; gap:8px;
+    background:var(--panel-2); border:1px solid var(--line);
+    padding:6px 6px 6px 12px; border-radius:20px; font-size:12.5px;
+  }
+  .tag.hot{border-color:var(--pink-dim); box-shadow:0 0 0 1px rgba(255,46,126,0.15) inset;}
+  .tag .x{cursor:pointer; color:var(--muted); background:#0C1026; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; font-size:11px;}
+  .tag .x:hover{color:var(--red);}
+
+  .note{
+    font-size:12px; color:var(--muted); background:#0C1026;
+    border:1px solid var(--line); border-radius:2px; padding:10px 12px; margin-bottom:18px;
+  }
+  .note b{color:var(--text);}
+  .toolbar{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  select{cursor:pointer;}
+
+  @media (max-width: 980px){
+    .board{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width: 720px){
+    .app{flex-direction:column;}
+    .sidebar{width:100%; height:auto; position:relative; flex-direction:row; overflow-x:auto; padding:14px;}
+    .brand{display:none;}
+    .nav{flex-direction:row;}
+    .sidebar-foot{display:none;}
+    .board{grid-template-columns:1fr;}
+    .content{padding:18px;}
+    .topbar{padding:18px;}
+  }
+  :focus-visible{outline:2px solid var(--cyan); outline-offset:2px;}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="brand">CLIP<br><span>CITY</span></div>
+    <div class="nav" id="nav">
+      <div class="nav-item active" data-view="trends">Trend Tracker <span class="nav-count" id="count-trends">0</span></div>
+      <div class="nav-item" data-view="creators">Creator Registry <span class="nav-count" id="count-creators">0</span></div>
+      <div class="nav-item" data-view="clips">Clip Intake <span class="nav-count" id="count-clips">0</span></div>
+      <div class="nav-item" data-view="board">Publish Board <span class="nav-count" id="count-board">0</span></div>
+      <div class="nav-item" data-view="data">Backup Data</div>
+    </div>
+    <div class="sidebar-foot">
+      Everything here lives in this browser tab only. Use <b>Backup Data</b> to save your work to a file before closing.
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <h1 id="page-title">Trend Tracker</h1>
+        <p id="page-sub">Keep a running log of what's hot around GTA 6 so every channel has something current to riff on.</p>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- TRENDS -->
+      <div class="view active" id="view-trends">
+        <div class="panel">
+          <h2>Add a trend</h2>
+          <p class="sub">Log topics, hashtags, or moments worth making content about — trailer drops, leaks, rumors, countdowns.</p>
+          <div class="form-row">
+            <input type="text" id="trend-input" placeholder="e.g. GTA 6 Vice City map leak">
+            <button class="btn" onclick="addTrend()">Add trend</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Active trends</h2>
+          <p class="sub">Mark the ones that are genuinely hot right now — they'll surface first.</p>
+          <div class="tags" id="trend-list"></div>
+        </div>
+      </div>
+
+      <!-- CREATORS -->
+      <div class="view" id="view-creators">
+        <div class="note">
+          <b>Why this exists:</b> nothing in the Clip Intake queue can be marked "cleared" unless the creator it came from is logged here as <b>Explicitly allowed</b>, with a link to where they said so. That's the gate — it's built in, not a suggestion.
+        </div>
+        <div class="panel">
+          <h2>Add a creator</h2>
+          <div class="form-row">
+            <input type="text" id="cr-name" placeholder="Creator name / handle">
+            <select id="cr-platform">
+              <option>Twitch</option>
+              <option>Kick</option>
+              <option>YouTube</option>
+              <option>X / Twitter</option>
+              <option>Other</option>
+            </select>
+            <select id="cr-status">
+              <option value="ok">✅ Explicitly allowed</option>
+              <option value="warn">⚠️ Unclear</option>
+              <option value="no">❌ Not allowed</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <input type="url" id="cr-proof" placeholder="Proof link (their clip policy, Discord rule, tweet, panel, etc.)">
+            <button class="btn" onclick="addCreator()">Add creator</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Registry</h2>
+          <table>
+            <thead><tr><th>Creator</th><th>Platform</th><th>Status</th><th>Proof</th><th></th></tr></thead>
+            <tbody id="creator-table"></tbody>
+          </table>
+          <div class="empty" id="creator-empty">No creators logged yet. Add one above.</div>
+        </div>
+      </div>
+
+      <!-- CLIPS -->
+      <div class="view" id="view-clips">
+        <div class="panel">
+          <h2>Log a clip</h2>
+          <p class="sub">Only creators marked "Explicitly allowed" in the registry can be selected here.</p>
+          <div class="form-row">
+            <input type="text" id="cl-title" placeholder="Clip title / what happens in it">
+            <select id="cl-creator"></select>
+          </div>
+          <div class="form-row">
+            <input type="url" id="cl-url" placeholder="Source URL">
+            <input type="text" id="cl-angle" placeholder="Your angle — commentary, subtitle idea, hook">
+          </div>
+          <div class="form-row">
+            <button class="btn" onclick="addClip()">Add to queue</button>
+            <span class="note" style="margin:0; flex:1;" id="clip-hint">Add an explicitly-allowed creator in the Registry tab first.</span>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Intake queue</h2>
+          <table>
+            <thead><tr><th>Clip</th><th>Creator</th><th>Your angle</th><th>Source</th><th></th></tr></thead>
+            <tbody id="clip-table"></tbody>
+          </table>
+          <div class="empty" id="clip-empty">No clips logged yet.</div>
+        </div>
+      </div>
+
+      <!-- BOARD -->
+      <div class="view" id="view-board">
+        <div class="panel" style="margin-bottom:16px;">
+          <h2>Assign to a channel</h2>
+          <p class="sub">Cards start in Idea. Drag them across as they move through your pipeline, then export the Scheduled/Published list as a checklist for upload day.</p>
+          <div class="toolbar">
+            <button class="btn secondary" onclick="exportChecklist()">Export publish checklist (CSV)</button>
+          </div>
+        </div>
+        <div class="board" id="board"></div>
+      </div>
+
+      <!-- DATA -->
+      <div class="view" id="view-data">
+        <div class="panel">
+          <h2>Save your work</h2>
+          <p class="sub">This app doesn't talk to any server — everything you've entered lives only in this browser tab and will be lost on refresh unless you save it.</p>
+          <div class="toolbar">
+            <button class="btn" onclick="exportData()">Download backup (.json)</button>
+            <label class="btn secondary" style="cursor:pointer;">
+              Load backup
+              <input type="file" id="import-file" accept="application/json" style="display:none" onchange="importData(event)">
+            </label>
+          </div>
+        </div>
+        <div class="panel">
+          <h2>Reset</h2>
+          <p class="sub">Clears trends, creators, clips, and the board. Can't be undone — export a backup first if you want to keep anything.</p>
+          <button class="btn danger" style="padding:9px 16px; font-size:13px;" onclick="resetAll()">Clear all data</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+let state = {
+  trends: [],
+  creators: [],
+  clips: [],
+  cards: [] // {id, clipId, title, creator, channel, column}
+};
+let nextId = 1;
+const id = () => nextId++;
+const COLUMNS = ['idea','cleared','editing','scheduled','published'];
+const COLUMN_LABELS = {idea:'Idea', cleared:'Cleared', editing:'Editing', scheduled:'Scheduled', published:'Published'};
+
+// ---------- NAV ----------
+const titles = {
+  trends: ['Trend Tracker', "Keep a running log of what's hot around GTA 6 so every channel has something current to riff on."],
+  creators: ['Creator Registry', 'Track which creators have explicitly said clipping is okay — this is the gate for everything downstream.'],
+  clips: ['Clip Intake', 'Log clips you plan to use, tied to a cleared creator, with your own commentary angle.'],
+  board: ['Publish Board', 'Move ideas across your pipeline and assign them to a channel.'],
+  data: ['Backup Data', 'Nothing here is saved automatically. Export before you close the tab.']
+};
+document.getElementById('nav').addEventListener('click', (e)=>{
+  const item = e.target.closest('.nav-item');
+  if(!item) return;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  item.classList.add('active');
+  const v = item.dataset.view;
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  document.getElementById('page-title').textContent = titles[v][0];
+  document.getElementById('page-sub').textContent = titles[v][1];
+});
+
+// ---------- TRENDS ----------
+function addTrend(){
+  const input = document.getElementById('trend-input');
+  const val = input.value.trim();
+  if(!val) return;
+  state.trends.push({id:id(), text:val, hot:false});
+  input.value='';
+  renderTrends();
+}
+function toggleHot(tid){
+  const t = state.trends.find(x=>x.id===tid);
+  if(t) t.hot = !t.hot;
+  renderTrends();
+}
+function removeTrend(tid){
+  state.trends = state.trends.filter(x=>x.id!==tid);
+  renderTrends();
+}
+function renderTrends(){
+  const wrap = document.getElementById('trend-list');
+  wrap.innerHTML = '';
+  if(state.trends.length===0){
+    wrap.innerHTML = '<div class="empty">No trends yet — add what is buzzing right now.</div>';
+  } else {
+    state.trends.slice().sort((a,b)=>b.hot-a.hot).forEach(t=>{
+      const el = document.createElement('div');
+      el.className = 'tag' + (t.hot ? ' hot' : '');
+      el.innerHTML = `<span onclick="toggleHot(${t.id})" style="cursor:pointer;">${t.hot ? '🔥 ' : ''}${escapeHtml(t.text)}</span><span class="x" onclick="removeTrend(${t.id})">✕</span>`;
+      wrap.appendChild(el);
+    });
+  }
+  document.getElementById('count-trends').textContent = state.trends.length;
+}
+
+// ---------- CREATORS ----------
+function addCreator(){
+  const name = document.getElementById('cr-name').value.trim();
+  const platform = document.getElementById('cr-platform').value;
+  const status = document.getElementById('cr-status').value;
+  const proof = document.getElementById('cr-proof').value.trim();
+  if(!name){ return; }
+  if(status==='ok' && !proof){
+    alert("Add a proof link (where they say clipping is okay) before marking a creator as explicitly allowed.");
+    return;
+  }
+  state.creators.push({id:id(), name, platform, status, proof});
+  document.getElementById('cr-name').value='';
+  document.getElementById('cr-proof').value='';
+  renderCreators();
+  renderClipCreatorSelect();
+}
+function removeCreator(cid){
+  state.creators = state.creators.filter(x=>x.id!==cid);
+  renderCreators();
+  renderClipCreatorSelect();
+}
+function statusBadge(status){
+  if(status==='ok') return '<span class="badge ok"><span class="dot"></span>Allowed</span>';
+  if(status==='warn') return '<span class="badge warn"><span class="dot"></span>Unclear</span>';
+  return '<span class="badge no"><span class="dot"></span>Not allowed</span>';
+}
+function renderCreators(){
+  const tbody = document.getElementById('creator-table');
+  tbody.innerHTML = '';
+  document.getElementById('creator-empty').style.display = state.creators.length ? 'none' : 'block';
+  state.creators.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(c.name)}</td>
+      <td>${c.platform}</td>
+      <td>${statusBadge(c.status)}</td>
+      <td>${c.proof ? `<a class="link" href="${escapeAttr(c.proof)}" target="_blank" rel="noopener">view proof</a>` : '<span style="color:var(--muted); font-size:12px;">—</span>'}</td>
+      <td><button class="btn danger" onclick="removeCreator(${c.id})">Remove</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('count-creators').textContent = state.creators.length;
+}
+
+// ---------- CLIPS ----------
+function renderClipCreatorSelect(){
+  const sel = document.getElementById('cl-creator');
+  const allowed = state.creators.filter(c=>c.status==='ok');
+  sel.innerHTML = '';
+  if(allowed.length===0){
+    sel.innerHTML = '<option value="">No cleared creators yet</option>';
+  } else {
+    sel.innerHTML = '<option value="">Select a cleared creator…</option>' + allowed.map(c=>`<option value="${c.id}">${escapeHtml(c.name)} (${c.platform})</option>`).join('');
+  }
+  document.getElementById('clip-hint').style.display = allowed.length ? 'none' : 'block';
+}
+function addClip(){
+  const title = document.getElementById('cl-title').value.trim();
+  const creatorId = document.getElementById('cl-creator').value;
+  const url = document.getElementById('cl-url').value.trim();
+  const angle = document.getElementById('cl-angle').value.trim();
+  if(!title || !creatorId){
+    alert('Give the clip a title and pick a cleared creator.');
+    return;
+  }
+  const creator = state.creators.find(c=>String(c.id)===String(creatorId));
+  const clip = {id:id(), title, creatorName:creator.name, url, angle};
+  state.clips.push(clip);
+  // auto-create a board card in "Cleared" since it passed the gate
+  state.cards.push({id:id(), clipId:clip.id, title, creator:creator.name, channel:'', column:'cleared'});
+  document.getElementById('cl-title').value='';
+  document.getElementById('cl-url').value='';
+  document.getElementById('cl-angle').value='';
+  renderClips();
+  renderBoard();
+}
+function removeClip(clid){
+  state.clips = state.clips.filter(x=>x.id!==clid);
+  state.cards = state.cards.filter(x=>x.clipId!==clid);
+  renderClips();
+  renderBoard();
+}
+function renderClips(){
+  const tbody = document.getElementById('clip-table');
+  tbody.innerHTML = '';
+  document.getElementById('clip-empty').style.display = state.clips.length ? 'none' : 'block';
+  state.clips.forEach(c=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${escapeHtml(c.title)}</td>
+      <td>${escapeHtml(c.creatorName)}</td>
+      <td>${escapeHtml(c.angle||'—')}</td>
+      <td>${c.url ? `<a class="link" href="${escapeAttr(c.url)}" target="_blank" rel="noopener">source</a>` : '—'}</td>
+      <td><button class="btn danger" onclick="removeClip(${c.id})">Remove</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById('count-clips').textContent = state.clips.length;
+}
+
+// ---------- BOARD ----------
+function renderBoard(){
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  COLUMNS.forEach(col=>{
+    const colEl = document.createElement('div');
+    colEl.className = 'col';
+    const cards = state.cards.filter(c=>c.column===col);
+    colEl.innerHTML = `<div class="col-head"><span>${COLUMN_LABELS[col]}</span><span class="nav-count">${cards.length}</span></div>
+      <div class="col-body" data-col="${col}"></div>`;
+    board.appendChild(colEl);
+  });
+  document.querySelectorAll('.col-body').forEach(body=>{
+    body.addEventListener('dragover', e=>{ e.preventDefault(); body.classList.add('dragover'); });
+    body.addEventListener('dragleave', ()=> body.classList.remove('dragover'));
+    body.addEventListener('drop', e=>{
+      e.preventDefault();
+      body.classList.remove('dragover');
+      const cardId = e.dataTransfer.getData('text/plain');
+      const card = state.cards.find(c=>String(c.id)===cardId);
+      if(card){ card.column = body.dataset.col; renderBoard(); }
+    });
+  });
+  state.cards.forEach(card=>{
+    const body = document.querySelector(`.col-body[data-col="${card.column}"]`);
+    if(!body) return;
+    const el = document.createElement('div');
+    el.className = 'card';
+    el.draggable = true;
+    el.addEventListener('dragstart', e=>{ e.dataTransfer.setData('text/plain', card.id); });
+    el.innerHTML = `
+      <div class="ct">${escapeHtml(card.title)}</div>
+      <div class="cm">Source: ${escapeHtml(card.creator)}</div>
+      <div class="cc">
+        <select onchange="setChannel(${card.id}, this.value)" style="font-size:11px; padding:4px 6px;">
+          <option value="">Assign channel…</option>
+          ${channelOptions(card.channel)}
+        </select>
+      </div>
+    `;
+    body.appendChild(el);
+  });
+  document.getElementById('count-board').textContent = state.cards.length;
+}
+function channelOptions(selected){
+  const channels = ['Channel 1','Channel 2','Channel 3','Channel 4','Channel 5','Channel 6','Channel 7','Channel 8','Channel 9','Channel 10','Channel 11','Channel 12'];
+  return channels.map(ch=>`<option ${ch===selected?'selected':''}>${ch}</option>`).join('');
+}
+function setChannel(cardId, val){
+  const card = state.cards.find(c=>c.id===cardId);
+  if(card) card.channel = val;
+}
+function exportChecklist(){
+  const rows = state.cards.filter(c=>c.column==='scheduled' || c.column==='published');
+  if(rows.length===0){ alert('Nothing in Scheduled or Published yet.'); return; }
+  let csv = 'Title,Source Creator,Channel,Status\\n';
+  rows.forEach(r=>{
+    csv += `"${(r.title||'').replace(/"/g,'""')}","${(r.creator||'').replace(/"/g,'""')}","${r.channel||''}","${COLUMN_LABELS[r.column]}"\\n`;
+  });
+  downloadFile(csv, 'clip-city-checklist.csv', 'text/csv');
+}
+
+// ---------- DATA ----------
+function exportData(){
+  const payload = JSON.stringify({state, nextId}, null, 2);
+  downloadFile(payload, 'clip-city-backup.json', 'application/json');
+}
+function importData(evt){
+  const file = evt.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(data.state){
+        state = data.state;
+        nextId = data.nextId || nextId;
+        renderAll();
+        alert('Backup loaded.');
+      }
+    } catch(err){
+      alert('Could not read that file — make sure it is a Clip City backup .json.');
+    }
+  };
+  reader.readAsText(file);
+  evt.target.value = '';
+}
+function resetAll(){
+  if(!confirm('Clear all trends, creators, clips, and board cards? This cannot be undone.')) return;
+  state = {trends:[], creators:[], clips:[], cards:[]};
+  renderAll();
+}
+function downloadFile(content, filename, type){
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ---------- UTIL ----------
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHtml(str); }
+
+function renderAll(){
+  renderTrends();
+  renderCreators();
+  renderClipCreatorSelect();
+  renderClips();
+  renderBoard();
+}
+renderAll();
+</script>
+</body>
+</html>

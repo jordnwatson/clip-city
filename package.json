@@ -1,0 +1,50 @@
+{
+  "name": "clip-city",
+  "productName": "Clip City",
+  "version": "1.0.0",
+  "description": "GTA 6 content command center — trend tracker, creator permission registry, clip intake, and publish board.",
+  "main": "main.js",
+  "author": "You",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "make": "electron-forge make",
+    "package": "electron-forge package"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^7.5.0",
+    "@electron-forge/maker-squirrel": "^7.5.0",
+    "@electron-forge/maker-zip": "^7.5.0",
+    "@electron-forge/maker-dmg": "^7.5.0",
+    "@electron-forge/maker-deb": "^7.5.0",
+    "electron": "^32.0.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "asar": true
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "clip_city"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": ["darwin", "linux"]
+        },
+        {
+          "name": "@electron-forge/maker-dmg",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        }
+      ]
+    }
+  }
+}
